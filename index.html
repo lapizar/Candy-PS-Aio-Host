@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Candy-PS — Auto Ping Landing</title>
+  <title>Candy-PS — Static Online Landing</title>
   <meta name="description" content="Candy-PS — GTPS simple landing page" />
   <style>
     :root {
@@ -328,17 +328,17 @@
 
   <div class="top-row">
 
-    <!-- STATUS AUTO PING -->
+    <!-- STATUS STATIC ONLINE -->
     <div class="card status" id="statusCard">
       <div class="small">Server status</div>
 
       <div style="margin-top:8px">
-        <span class="badge" id="overallStatus">Checking...</span>
+        <span class="badge" id="overallStatus" style="background: var(--success-bg); color: var(--success-color);">Online</span>
       </div>
 
-      <div class="small" id="latencyText" style="margin-top:10px">—</div>
-      <div class="small" style="margin-top:8px">Main IP: <strong id="mainIP">—</strong></div>
-      <div class="small">Sub IP: <strong id="subIP">—</strong></div>
+      <div class="small" id="latencyText" style="margin-top:10px">Server aktif dan siap digunakan</div>
+      <div class="small" style="margin-top:8px">Main IP: <strong id="mainIP">51.79.150.97</strong></div>
+      <div class="small">Sub IP: <strong id="subIP">15.235.227.241</strong></div>
     </div>
 
     <!-- BUTTONS -->
@@ -403,14 +403,14 @@
         <p style="margin:8px 0 0">- Mine games · Geiger · Bountiful · Etc more games and Profitable methods</p>
       </div>
       <div class="last-checked">
-        <div class="small">Last checked</div>
-        <div id="lastUpdated" style="font-weight:700;margin-top:6px">—</div>
+        <div class="small">Last updated</div>
+        <div id="lastUpdated" style="font-weight:700;margin-top:6px">Kemarin</div>
       </div>
     </div>
   </div>
 
   <footer>
-    <div style="margin-top:10px">Candy-PS • Auto Ping Landing</div>
+    <div style="margin-top:10px">Candy-PS • Static Online Landing</div>
   </footer>
 
 </div><!-- wrap end -->
@@ -427,8 +427,6 @@ const IOS_SURGE_URL = "https://lapizar.github.io/Candy-PS-IOS-Surge5/";
 
 const MAIN_IP = "51.79.150.97";
 const SUB_IP  = "15.235.227.241";
-const PORT    = 17091;         // ubah jika port server kamu berbeda
-const CHECK_INTERVAL_MS = 12000;
 
 /* =============================
       ELEMENTS
@@ -482,76 +480,20 @@ document.getElementById("copyIosBtn").addEventListener("click", ()=>{
 });
 
 /* =============================
-      PING FUNCTION
+      SET STATIC STATUS
 ============================= */
-function ping(ip, port = PORT, timeout = 3000){
-  return new Promise(resolve=>{
-    const controller = new AbortController();
-    const start = performance.now();
-    const timer = setTimeout(()=> controller.abort(), timeout);
-
-    fetch(`http://${ip}:${port}/`, {mode:"no-cors", signal:controller.signal})
-      .then(()=>{
-        clearTimeout(timer);
-        resolve({ok:true, time:Math.round(performance.now() - start)});
-      })
-      .catch(()=>{
-        clearTimeout(timer);
-        resolve({ok:false, time:null});
-      });
-  });
+function setStaticStatus() {
+  overallStatusEl.textContent = "Online";
+  overallStatusEl.style.background = "var(--success-bg)";
+  overallStatusEl.style.color = "var(--success-color)";
+  latencyTextEl.textContent = "Server aktif dan siap digunakan";
+  lastUpdatedEl.textContent = "Static Online";
 }
 
 /* =============================
-      CHECK BOTH IP
+      INITIALIZE
 ============================= */
-async function checkServer(){
-  overallStatusEl.textContent = "Checking...";
-  overallStatusEl.classList.add("checking");
-  overallStatusEl.style.background = "";
-  overallStatusEl.style.color = "";
-  latencyTextEl.textContent = "—";
-
-  try {
-    const [main, sub] = await Promise.all([
-      ping(MAIN_IP),
-      ping(SUB_IP)
-    ]);
-
-    const anyOnline = main.ok || sub.ok;
-
-    if (anyOnline){
-      overallStatusEl.textContent = "Online";
-      overallStatusEl.style.background = "var(--success-bg)";
-      overallStatusEl.style.color = "var(--success-color)";
-
-      const times = [];
-      if (main.ok) times.push(`${main.time}ms (main)`);
-      if (sub.ok)  times.push(`${sub.time}ms (sub)`);
-
-      latencyTextEl.textContent = "Ping: " + times.join(" • ");
-    } else {
-      overallStatusEl.textContent = "Offline / Unknown";
-      overallStatusEl.style.background = "var(--error-bg)";
-      overallStatusEl.style.color = "var(--error-color)";
-      latencyTextEl.textContent = "Tidak menjawab (CORS/port mungkin diblokir)";
-    }
-  } catch (error) {
-    overallStatusEl.textContent = "Error Checking";
-    overallStatusEl.style.background = "var(--error-bg)";
-    overallStatusEl.style.color = "var(--error-color)";
-    latencyTextEl.textContent = "Terjadi kesalahan saat memeriksa";
-  } finally {
-    overallStatusEl.classList.remove("checking");
-    lastUpdatedEl.textContent = new Date().toLocaleString();
-  }
-}
-
-/* =============================
-      START LOOP
-============================= */
-checkServer();
-setInterval(checkServer, CHECK_INTERVAL_MS);
+setStaticStatus();
 
 /* =============================
       ADDITIONAL MOBILE UX
